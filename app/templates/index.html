@@ -1,0 +1,66 @@
+<!-- app/templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>X-ray Disease Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+            text-align: center;
+        }
+        img {
+            margin-top: 1rem;
+            width: 300px;
+            height: auto;
+            border: 1px solid #ccc;
+        }
+        .prediction {
+            margin-top: 1rem;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>X-ray Disease Classifier</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file" id="file" accept="image/*" required><br><br>
+        <button type="submit">Predict</button>
+    </form>
+
+    <img id="preview" src="#" alt="Image Preview" style="display: none;">
+    <div class="prediction" id="prediction"></div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const preview = document.getElementById('preview');
+        const prediction = document.getElementById('prediction');
+
+        document.getElementById('file').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            prediction.textContent = "Prediction: " + result.prediction;
+        });
+    </script>
+</body>
+</html>
